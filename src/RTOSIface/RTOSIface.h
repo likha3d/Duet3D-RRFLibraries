@@ -263,6 +263,8 @@ namespace RTOSIface
 #endif
 	}
 
+	static portMUX_TYPE s_iface_mux = portMUX_INITIALIZER_UNLOCKED;
+
 #ifndef RTOS
 	static volatile unsigned int interruptCriticalSectionNesting = 0;
 #endif
@@ -271,7 +273,7 @@ namespace RTOSIface
 	inline void EnterInterruptCriticalSection() noexcept
 	{
 #ifdef RTOS
-		taskENTER_CRITICAL();
+		taskENTER_CRITICAL(&s_iface_mux);
 #else
 		DisableInterrupts();
 		++interruptCriticalSectionNesting;
@@ -282,7 +284,7 @@ namespace RTOSIface
 	inline void LeaveInterruptCriticalSection() noexcept
 	{
 #ifdef RTOS
-		taskEXIT_CRITICAL();
+		taskEXIT_CRITICAL(&s_iface_mux);
 #else
 		--interruptCriticalSectionNesting;
 		if (interruptCriticalSectionNesting == 0)
