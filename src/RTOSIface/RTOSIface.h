@@ -263,7 +263,9 @@ namespace RTOSIface
 #endif
 	}
 
+#ifdef ESP_PLATFORM
 	static portMUX_TYPE s_iface_mux = portMUX_INITIALIZER_UNLOCKED;
+#endif
 
 #ifndef RTOS
 	static volatile unsigned int interruptCriticalSectionNesting = 0;
@@ -273,7 +275,11 @@ namespace RTOSIface
 	inline void EnterInterruptCriticalSection() noexcept
 	{
 #ifdef RTOS
-		taskENTER_CRITICAL(&s_iface_mux);
+#ifdef ESP_PLATFORM
+		taskEXIT_CRITICAL(&s_iface_mux);
+#else
+		taskENTER_CRITICAL();
+#endif
 #else
 		DisableInterrupts();
 		++interruptCriticalSectionNesting;
@@ -284,7 +290,11 @@ namespace RTOSIface
 	inline void LeaveInterruptCriticalSection() noexcept
 	{
 #ifdef RTOS
+#ifdef ESP_PLATFORM
 		taskEXIT_CRITICAL(&s_iface_mux);
+#else
+		taskEXIT_CRITICAL();
+#endif
 #else
 		--interruptCriticalSectionNesting;
 		if (interruptCriticalSectionNesting == 0)
