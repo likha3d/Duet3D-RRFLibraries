@@ -214,7 +214,11 @@ public:
 	// The Create function assumes that only the main task creates other tasks, so we don't need a mutex to protect the task list
 	void Create(TaskFunction_t pxTaskCode, const char * pcName, void *pvParameters, unsigned int uxPriority) noexcept
 	{
-		xTaskCreateStatic(pxTaskCode, pcName, StackWords, pvParameters, uxPriority, stack, this);
+#ifndef ESP_PLATFORM
+		handle = xTaskCreateStatic(pxTaskCode, pcName, StackWords, pvParameters, uxPriority, stack, this);
+#else
+		handle = xTaskCreateStatic(pxTaskCode, pcName, StackWords, pvParameters, uxPriority, (unsigned char*)stack, this);
+#endif
 		AddToList();
 	}
 
@@ -276,7 +280,7 @@ namespace RTOSIface
 	{
 #ifdef RTOS
 #ifdef ESP_PLATFORM
-		taskEXIT_CRITICAL(&s_iface_mux);
+		portENTER_CRITICAL(&s_iface_mux);
 #else
 		taskENTER_CRITICAL();
 #endif
@@ -291,7 +295,7 @@ namespace RTOSIface
 	{
 #ifdef RTOS
 #ifdef ESP_PLATFORM
-		taskEXIT_CRITICAL(&s_iface_mux);
+		portEXIT_CRITICAL(&s_iface_mux);
 #else
 		taskEXIT_CRITICAL();
 #endif
