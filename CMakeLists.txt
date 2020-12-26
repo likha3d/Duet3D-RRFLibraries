@@ -6,6 +6,7 @@ add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>")
 set(srcs
     "src/RTOSIface/RTOSIface.cpp"
     "src/Math/Deviation.cpp"
+    "src/Math/DeviationAccumulator.cpp"
     "src/Math/Isqrt.cpp"
     "src/General/IP4String.cpp"
     "src/General/IPAddress.cpp"
