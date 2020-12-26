@@ -390,7 +390,9 @@ private:
 	volatile uint8_t numReaders;			// SAMC21 doesn't support atomic operations, neither does the library
 # else
 	std::atomic_uint8_t numReaders;			// MSB is set if a task is writing or write pending, lower bits are the number of readers
+#ifndef ESP_PLATFORM
 	static_assert(std::atomic_uint8_t::is_always_lock_free);
+#endif
 # endif
 	volatile TaskBase *writeLockOwner;		// handle of the task that owns the write lock
 #endif
