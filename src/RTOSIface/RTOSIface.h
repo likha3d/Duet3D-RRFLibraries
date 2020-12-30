@@ -185,8 +185,13 @@ public:
 	// Clear a task notification count
 	static uint32_t ClearNotifyCount(TaskBase* h = GetCallerTaskHandle(), uint32_t bitsToClear = 0xFFFFFFFF) noexcept
 	{
+#ifndef ESP_PLATFORM
 		ulTaskNotifyValueClear(h->GetFreeRTOSHandle(), bitsToClear);
 		return ulTaskNotifyValueClear(h->GetFreeRTOSHandle(), bitsToClear);
+#else
+		// [TODO Lunaboard] clear task notify
+		return 0;
+#endif
 	}
 
 	static TaskBase *GetCallerTaskHandle() noexcept { return reinterpret_cast<TaskBase *>(xTaskGetCurrentTaskHandle()); }
@@ -215,9 +220,9 @@ public:
 	void Create(TaskFunction_t pxTaskCode, const char * pcName, void *pvParameters, unsigned int uxPriority) noexcept
 	{
 #ifndef ESP_PLATFORM
-		handle = xTaskCreateStatic(pxTaskCode, pcName, StackWords, pvParameters, uxPriority, stack, this);
+		xTaskCreateStatic(pxTaskCode, pcName, StackWords, pvParameters, uxPriority, stack, this);
 #else
-		handle = xTaskCreateStatic(pxTaskCode, pcName, StackWords, pvParameters, uxPriority, (unsigned char*)stack, this);
+		xTaskCreateStatic(pxTaskCode, pcName, StackWords, pvParameters, uxPriority, (unsigned char*)stack, this);
 #endif
 		AddToList();
 	}
